@@ -6,6 +6,7 @@ bp = Blueprint("auth", __name__)
 
 @bp.route("/login", methods=["POST"])
 def login():
+    
     username = request.form.get("username")
     password = request.form.get("password")
     if username is None or password is None:
@@ -13,13 +14,7 @@ def login():
             jsonify({"error": "username and password parameter have to be provided"}),
             400,
         )
-
-    # vulnerability: SQL Injection
-    query = (
-        "SELECT id, username, access_level FROM user WHERE username = '%s' AND password = '%s'"
-        % (username, password)
-    )
-    result = query_db(query, [], True)
+    result = get_login_results(username, password)
     if result is None:
         return jsonify({"bad_login": True}), 400
     session["user_info"] = (result[0], result[1], result[2])
@@ -46,3 +41,11 @@ def login_and_redirect():
         return redirect(url)
     session["user_info"] = (result[0], result[1], result[2])
     return jsonify({"success": True})
+
+def get_login_results(username, password):
+    # vulnerability: SQL Injection
+    query = (
+        "SELECT id, username, access_level FROM user WHERE username = '%s' AND password = '%s'"
+        % (username, password)
+    )
+    result = query_db(query, [], True)
