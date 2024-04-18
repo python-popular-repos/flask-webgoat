@@ -8,6 +8,12 @@ bp = Blueprint("users", __name__)
 
 
 @bp.route("/create_user", methods=["POST"])
+def create_user_handler():
+    print("create_user_handler start.")
+    res = create_user(session, request)
+    print('create_user_handler done.')
+    return res
+
 def create_user():
     user_info = session.get("user_info", None)
     if user_info is None:
